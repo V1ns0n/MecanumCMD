@@ -52,6 +52,7 @@ std::string cmd;
 static int portNumber = 8888;
 int send_flag = 0;
 int rec_flag = 0;
+int joy_flag = 0;
 unsigned int time;
 
 DWORD WINAPI Thread1(LPVOID pM)
@@ -87,6 +88,7 @@ DWORD WINAPI Thread2(LPVOID pM)
 	serverAddr.sin_port = htons(portNumber);
 	len = sizeof(clientAddr);
 	double msg[6] = { 1.0, 2.0, 1.0, 2.0, 1.0, 2.0 };
+	ofstream outfile("data.txt");
 	while (1)
 	{
 		if (!stop_flag)
@@ -95,7 +97,7 @@ DWORD WINAPI Thread2(LPVOID pM)
 			{
 				msg[i] = msg[i] + 0.1;
 			}*/
-			UpdateCarState(sockfd, (struct sockaddr *)&serverAddr, len, msg, *net);
+			UpdateCarState(sockfd, (struct sockaddr *)&serverAddr, len, msg, *net, outfile);
 		}
 	}
 	return 0;

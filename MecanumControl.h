@@ -37,4 +37,4 @@ void GoToPos(ofstream &outfile, ECAT::motion_network_t& net);
 void Square(double x, double y, int num, ofstream &outfile, ECAT::motion_network_t& net);
 void SaveData(ofstream &outfile);
 void Circle(double r, double T, int num, ofstream &outfile, ECAT::motion_network_t& net);
-void UpdateCarState(SOCKET sockfd, const sockaddr* serverAddr, int len, double msg[], ECAT::motion_network_t& net);
+void UpdateCarState(SOCKET sockfd, const sockaddr* serverAddr, int len, double msg[], ECAT::motion_network_t& net,ofstream &outfile);

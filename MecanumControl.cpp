@@ -49,6 +49,7 @@ extern string cmd;
 extern unsigned int time;
 extern int send_flag;
 extern int rec_flag;
+extern int joy_flag;
 
 void Wait(LONG ms)
 {
@@ -372,6 +373,7 @@ void ExitLoop(ECAT::motion_network_t* net)
 	if (temp == "q")
 	{
 		stop_flag = 1;
+		joy_flag = 0;
 		cout << "Exit Loop." << endl;
 		cmd = "";
 		for (size_t i = 0; i < motor_number; i++)
@@ -388,6 +390,10 @@ void ExitLoop(ECAT::motion_network_t* net)
 	{
 		stop_flag = 0;
 		cmd = "";
+	}
+	else if (temp == "joy")
+	{
+		joy_flag = 1;
 	}
 	else{
 		line.str(temp);
@@ -493,7 +499,7 @@ void Circle(double r, double T, int num, ofstream &outfile, ECAT::motion_network
 	SetWheelVel(param, net);
 }
 
-void UpdateCarState(SOCKET sockfd, const sockaddr* serverAddr, int len, double msg[], ECAT::motion_network_t& net)
+void UpdateCarState(SOCKET sockfd, const sockaddr* serverAddr, int len, double msg[], ECAT::motion_network_t& net,ofstream &outfile)
 {
 	UpdateCurrentState(param);
 	VelToRad(sensor_w_car);
@@ -503,11 +509,15 @@ void UpdateCarState(SOCKET sockfd, const sockaddr* serverAddr, int len, double m
 	time = GetTickCount();
 	//cout << dperiod*1000.0 << endl;
 	DeadReckonging(last_sensor_w_car, sensor_w_car, sensor_theta_car, sensor_pos_car);
+	SaveData(outfile);
 	//double msg[6] = { 1.0, 2.0, 1.0, 2.0, 1.0, 2.0 };
 	double msg1[6] = { sensor_pos_car(0), sensor_pos_car(1), sensor_pos_car(2), sensor_v_car(0), sensor_v_car(1), sensor_v_car(2)};
-	Pose_Velocity* pMsg = new Pose_Velocity();
-	CreateMsg(pMsg, msg1);
-	send_flag = SendMsg(sockfd, serverAddr, len, pMsg);
-	rec_flag = RecieveMsg(sockfd, (struct sockaddr *)&serverAddr, &len,net);
+	if (joy_flag)
+	{
+		Pose_Velocity* pMsg = new Pose_Velocity();
+		CreateMsg(pMsg, msg1);
+		send_flag = SendMsg(sockfd, serverAddr, len, pMsg);
+		rec_flag = RecieveMsg(sockfd, (struct sockaddr *)&serverAddr, &len, net);
+	}
 	Wait(20);
 }
